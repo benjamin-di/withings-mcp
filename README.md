@@ -320,3 +320,16 @@ response-body reads. Disabling retries does not disable the deadline. A
 instead of sleeping indefinitely or retrying earlier than the provider permits.
 Retry logs contain status codes or a generic network-failure category, never
 arbitrary exception messages that can contain credentials or health data.
+
+### Body-measure values and timestamps
+
+Structured and summary body-measure groups include `measured_at` (UTC ISO 8601)
+and decoded measures: `decoded_value = value * 10 ** unit`, with documented
+`label` and `unit_label` for known types. Original value, exponent, type and
+future fields remain intact. Unknown types retain their numeric data without
+guessing a physical unit; raw JSON remains unchanged.
+
+Collection metadata distinguishes `fetched_at` from the actual measurement time
+and identifies `source: "withings"`. Markdown previews display decoded scale
+values and units instead of the generic activity fields. Measurement type units
+follow the [official API reference](https://developer.withings.com/api-reference/#operation/measure-getmeas).
