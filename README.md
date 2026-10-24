@@ -299,3 +299,15 @@ Pass that value back with the same filters; it takes precedence over the legacy
 `page` estimate. Withings can return numeric `more: 1`, short pages, and offsets
 that differ from the requested page size. `all_pages` follows these offsets up to
 `max_pages`; a response with `has_more: true` is a partial export.
+
+### Token rotation and API failures
+
+Token records retain the Withings `userid`. Refreshes serialize across processes
+using an OS-held SQLite lock (the existing SQLite dependency), which releases
+automatically after a process crash. New credentials are flushed and atomically
+replaced before use. Both HTTP 401 and JSON statuses 401/343 trigger one refresh;
+concurrent rejected requests reuse a rotation that already completed. Incomplete
+token responses or a changed user identity leave saved credentials intact.
+
+API failures are returned as failures even with the optional SQLite cache enabled;
+a previous successful response must not conceal revoked access or stale readings.
