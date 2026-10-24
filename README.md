@@ -320,6 +320,17 @@ token responses or a changed user identity leave saved credentials intact.
 API failures are returned as failures even with the optional SQLite cache enabled;
 a previous successful response must not conceal revoked access or stale readings.
 
+Set the optional environment-only `WITHINGS_TOKEN_ENCRYPTION_KEY` to a secret
+32-byte key encoded as unpadded base64url to encrypt token files with AES-256-GCM.
+Keep the key in a secret manager outside the token volume. Files use the
+`withings-token-v1` JSON envelope: a 12-byte base64url `nonce` and base64url
+`ciphertext` with the 16-byte authentication tag appended; the format name is
+authenticated as additional data. Writes remain atomic and synchronized.
+Wrong/missing keys, modified ciphertext, and plaintext files when encryption is
+enabled fail explicitly. Enable encryption before connecting, or reauthorize an
+existing plaintext connection. Protect and back up the key; losing it requires
+reauthorization. The legacy plaintext format remains available when unset.
+
 ### Request deadlines
 
 Each HTTP operation has a ten-second total deadline, including retries and
