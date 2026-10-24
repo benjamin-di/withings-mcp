@@ -311,3 +311,12 @@ token responses or a changed user identity leave saved credentials intact.
 
 API failures are returned as failures even with the optional SQLite cache enabled;
 a previous successful response must not conceal revoked access or stale readings.
+
+### Request deadlines
+
+Each HTTP operation has a ten-second total deadline, including retries and
+response-body reads. Disabling retries does not disable the deadline. A
+`Retry-After` longer than the remaining budget returns the API failure immediately
+instead of sleeping indefinitely or retrying earlier than the provider permits.
+Retry logs contain status codes or a generic network-failure category, never
+arbitrary exception messages that can contain credentials or health data.
