@@ -347,3 +347,16 @@ vascular age) and unknown types retain their numeric data without a guessed
 unit; raw JSON remains unchanged. Markdown previews display decoded scale values
 and units instead of the generic activity fields. Measurement type units follow
 the [official API reference](https://developer.withings.com/api-reference/#operation/measure-getmeas).
+
+### Token encryption at rest
+
+Set the optional environment-only `WITHINGS_TOKEN_ENCRYPTION_KEY` to a secret
+32-byte key encoded as unpadded base64url to encrypt token files with AES-256-GCM.
+Keep the key in a secret manager outside the token volume. Files use the
+`withings-token-v1` JSON envelope: a 12-byte base64url `nonce` and base64url
+`ciphertext` with the 16-byte authentication tag appended; the format name is
+authenticated as additional data. Writes remain atomic and synchronized.
+Wrong/missing keys, modified ciphertext, and plaintext files when encryption is
+enabled fail explicitly. Enable encryption before connecting, or reauthorize an
+existing plaintext connection. Protect and back up the key; losing it requires
+reauthorization. The legacy plaintext format remains available when unset.
