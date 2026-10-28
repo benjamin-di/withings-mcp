@@ -307,3 +307,18 @@ exact offset. `cursor` takes precedence over `offset`, which takes precedence
 over `page`. Invalid or mismatched cursors, stalled/missing vendor offsets, and
 unrecognized collection payloads fail explicitly rather than appearing complete
 or empty. An actual recognized empty collection remains a valid empty result.
+
+### Token rotation and API failures
+
+Token records retain the Withings `userid`. Refreshes serialize across processes
+using an OS-held SQLite lock (the existing SQLite dependency), which releases
+automatically after a process crash. New credentials are flushed and atomically
+replaced before use. HTTP 401 and the JSON invalid-token statuses 100, 101, 102,
+200 and 401 trigger one refresh; concurrent rejected requests reuse a rotation that
+already completed. Incomplete token responses or a changed user identity leave
+saved credentials intact. Signed token requests are never replayed automatically.
+
+With the optional SQLite cache enabled, only transient failures (network errors,
+HTTP 5xx and JSON status 601) return the previous successful response, marked
+`cached: true` with its `cached_at` time. Authorization and parameter errors remain
+errors, so a previous response cannot conceal revoked access.

@@ -120,6 +120,8 @@ export const CollectionOutputSchema = z.object({
   next_cursor: z.string().optional(),
   has_more: z.boolean(),
   pages_fetched: z.number().int().nonnegative(),
+  cached: z.boolean().optional(),
+  cached_at: z.string().optional(),
   empty: z.boolean().optional(),
   warning: z.string().optional()
 }).strict();
